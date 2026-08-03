@@ -1,4 +1,6 @@
-const { Pool } = require('pg');
+import pg from 'pg';
+
+const { Pool } = pg;
 
 const pool = new Pool({
     user: process.env.POSTGRES_USER,
@@ -8,13 +10,4 @@ const pool = new Pool({
     port: process.env.POSTGRES_PORT || 5432, 
 })
 
-// testing if this works
-pool.query('SELECT NOW()', (err, res) => {
-  if (err) {
-    console.error('Database connection error:', err.stack);
-  } else {
-    console.log('Connected to PostgreSQL database at:', res.rows[0].now);
-  }
-});
-
-module.exports = pool;
+export const query = (text, params) => pool.query(text, params);

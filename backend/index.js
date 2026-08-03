@@ -1,7 +1,8 @@
-require('dotenv').config();
-const express = require('express');
-const cors = require('cors');
-const db = require('./db.js');
+import 'dotenv/config';
+import express from 'express';
+import cors from 'cors';
+import bcrypt from 'bcryptjs';
+import { query } from './db.js';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -9,20 +10,95 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
-// TODO: delete this, it's just for checking that it works
-app.get('/api/health', async (req, res) => {
+app.post('/api/auth/login', async(req, res) => {
+  const { email, password } = req.body;
+  
+  if (!email || !password) {
+    return res.status(400).json({ error: 'Email and password are required' });
+  }
+
   try {
-    const result = await db.query('SELECT count(*) FROM users');
-    res.json({
-      status: 'ok',
-      message: 'Backend & Database successfully connected! Restart too',
-      userCount: result.rows[0].count,
+    const result = await query(
+      'SELECT id, first_name, last_name, email, password_hash FROM users WHERE email = $1',
+      [email.trim().toLowerCase()]
+    );
+
+    if (result.rows.length === 0) {
+        return res.status(401).json({ error: 'Invalid email or password!' });
+    }
+
+    const user = result.rows[0];
+    const isValidPassword = await bcrypt.compare(password, user.password_hash);
+
+    if (!isValidPassword) {
+      return res.status(401).json({ error: 'Invalid email or password!'})
+    }
+
+    return res.status(200).json({ message: 'Successfull login!', user: {
+        id: user.id,
+        firstName: user.first_name,
+        lastName: user.last_name,
+        email: user.email,
+      },
+    })
+    } catch (err) {
+      console.error('Login Database Error:', err);
+      return res.status(500).json({ error: 'Database query failed' });
+    }
+});
+
+const ALLOWED_DOMAINS = ['gmail.com', 'yahoo.com', 'stud.acs.upb.ro'];
+
+const isValidEmail = (email) => {
+  if (!email.includes('@')) return false;
+
+  const parts = email.trim().toLowerCase().split('@');
+  if (parts.length !== 2) return false;
+  
+  const [username, domain] = parts;
+  return username.length > 0 && ALLOWED_DOMAINS.includes(domain);
+};
+
+app.post('/api/auth/register', async(req, res) => {
+  const { firstName, lastName, email, password } = req.body;
+  if (!email || !password) {
+    return res.status(400).json({ error: 'Email and password are required' });
+  }
+
+  if (!isValidEmail(email)) {
+    return res.status(400).json({ error: 'Email format invalid! Accepted emails: user@gmail.com, user@stud.acs.upb.ro, user@yahoo.com'})
+  }
+
+  if (password.length < 6) {
+    return res.status(400).json({ error: 'Password must have at least 6 characters!'});
+  }
+
+  const saltRounds = 10;
+  const hashedPass = await bcrypt.hash(password, saltRounds);
+
+  try {
+    const result = await query(
+      `INSERT INTO users (first_name, last_name, email, password_hash)
+       VALUES ($1, $2, $3, $4)
+       RETURNING id, first_name, last_name, email`,
+      [firstName, lastName, email.trim().toLowerCase(), hashedPass]
+    );
+
+    console.log('User created:', result.rows[0]);
+
+    return res.status(201).json({
+      message: 'Account created successfully!',
+      user: result.rows[0],
     });
   } catch (err) {
-    console.error('Health Check Error:', err);
-    res.status(500).json({ error: 'Database query failed' });
+    // 23505 = duplicate key error in Postgres
+    if (err.code === '23505') {
+      return res.status(409).json({ error: 'An account with that email already exists!' });
+    }
+    console.error('Database Error:', err);
+    return res.status(500).json({ error: 'Database query failed' });
   }
-});
+})
 
 app.listen(PORT, () => {
   console.log(`Express server running on port ${PORT}`);
