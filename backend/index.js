@@ -2,6 +2,7 @@ import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 import { query } from './db.js';
 
 const app = express();
@@ -34,7 +35,14 @@ app.post('/api/auth/login', async(req, res) => {
       return res.status(401).json({ error: 'Invalid email or password!'})
     }
 
-    return res.status(200).json({ message: 'Successfull login!', user: {
+    const secretKey = process.env.JWT_SECRET || 'super_secret_temporary_key';
+    const token = jwt.sign(
+      { userId: user.id, email: user.email },
+      secretKey,
+      { expiresIn: '24h' }
+    );
+
+    return res.status(200).json({ message: 'Successfull login!', token, user: {
         id: user.id,
         firstName: user.first_name,
         lastName: user.last_name,

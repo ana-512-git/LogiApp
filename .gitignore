@@ -5,6 +5,7 @@ frontend/node_modules/
 
 # Environment variables & secrets (CRITICAL: Never commit real passwords)
 .env
+backend/.env
 *.env
 
 # Build outputs
