@@ -11,6 +11,23 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
+const authenticateToken = (req, res, next) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+
+  if (!token) {
+    return res.status(401).json({ error: 'Invalid token, pls log in' });
+  }
+
+  jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+    if (err) {
+      return res.status(403).json({ error: 'Invalid or expired token.' });
+    }
+    req.user = decoded;
+    next();
+  });
+};
+
 app.post('/api/auth/login', async(req, res) => {
   const { email, password } = req.body;
   
@@ -20,7 +37,7 @@ app.post('/api/auth/login', async(req, res) => {
 
   try {
     const result = await query(
-      'SELECT id, first_name, last_name, email, password_hash FROM users WHERE email = $1',
+      'SELECT id, first_name, last_name, email, password_hash, role FROM users WHERE email = $1',
       [email.trim().toLowerCase()]
     );
 
@@ -37,7 +54,7 @@ app.post('/api/auth/login', async(req, res) => {
 
     const secretKey = process.env.JWT_SECRET || 'super_secret_temporary_key';
     const token = jwt.sign(
-      { userId: user.id, email: user.email },
+      { userId: user.id, email: user.email, role: user.role || 'staff' },
       secretKey,
       { expiresIn: '24h' }
     );
@@ -86,17 +103,26 @@ app.post('/api/auth/register', async(req, res) => {
 
   try {
     const result = await query(
-      `INSERT INTO users (first_name, last_name, email, password_hash)
-       VALUES ($1, $2, $3, $4)
-       RETURNING id, first_name, last_name, email`,
-      [firstName, lastName, email.trim().toLowerCase(), hashedPass]
+      `INSERT INTO users (first_name, last_name, email, password_hash, role)
+       VALUES ($1, $2, $3, $4, $5)
+       RETURNING id, first_name, last_name, email, role`,
+      [firstName, lastName, email.trim().toLowerCase(), hashedPass, 'staff']
     );
 
-    console.log('User created:', result.rows[0]);
+    const user = result.rows[0];
+    console.log('User created:', user);
+
+    const secretKey = process.env.JWT_SECRET || 'super_secret_temporary_key';
+    const token = jwt.sign(
+      { userId: user.id, email: user.email, role: user.role || 'staff' },
+      secretKey,
+      { expiresIn: '24h' }
+    );
 
     return res.status(201).json({
       message: 'Account created successfully!',
-      user: result.rows[0],
+      token,
+      user: user,
     });
   } catch (err) {
     // 23505 = duplicate key error in Postgres

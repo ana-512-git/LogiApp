@@ -1,10 +1,12 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 export default function Login() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [status, setStatus] = useState('');
+
+    const navigate = useNavigate();
 
     const handleLogin = async(e) => {
         e.preventDefault();
@@ -22,6 +24,9 @@ export default function Login() {
             if (!response.ok) {
                 setStatus(`Error: ${data.error}`);
             } else {
+                localStorage.setItem('token', data.token);
+                navigate('/dashboard'); 
+
                 setStatus(`Success: ${data.message}`);
                 setEmail('');
                 setPassword('');
@@ -56,8 +61,7 @@ export default function Login() {
             <button onClick={handleLogin}>Login</button>
             <br></br>
             No account? <Link to='/register'>Register here</Link>
-            <h3>Status output:</h3>
-            <p style={{ color: 'red' }}>{status}</p>
+            <p>{status}</p>
         </>
     )
 }

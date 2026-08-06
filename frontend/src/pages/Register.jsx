@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 
 export default function Register() {
@@ -7,6 +7,7 @@ export default function Register() {
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
     const [status, setStatus] = useState('');
+    const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -24,11 +25,13 @@ export default function Register() {
             if (!response.ok) {
                 setStatus(`Error: ${data.error}`);
             } else {
-                setStatus(`Success: ${data.message}`);
                 setFirstName('');
                 setLastName('');
                 setEmail('');
                 setPassword('');
+                
+                localStorage.setItem('token', data.token);
+                navigate('/dashboard');
             }
         } catch (err) {
             console.log("shit went wrong:", err);
@@ -77,7 +80,7 @@ export default function Register() {
             </div>
             <button onClick={handleSubmit}>Create account</button>
             <p>{status}</p>
-        <Link to='/login'>take me back</Link>
+            <p>Already have an account?<Link to='/login'>Login</Link></p>
         </>
     )
 }
