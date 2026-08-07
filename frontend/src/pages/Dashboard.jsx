@@ -35,7 +35,8 @@ export default function Dashboard() {
             {role == 'admin' && 
                 <p>Welcome to your protected dash</p>
             }
-            <button onClick={handleLogout}>Logout</button>
+            <button onClick={handleLogout}>Logout</button><br></br><br></br>
+            <input type='text' placeholder='Search for object by name'></input>
         </>
     );
 }
