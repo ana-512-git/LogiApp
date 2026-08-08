@@ -40,25 +40,27 @@ export default function Login() {
     return(
         <>
             <h1>Login</h1>
-            <div>
-                <label>email: </label>
-                <input 
-                type="text" 
-                value={email} 
-                onChange={(e) => setEmail(e.target.value)} 
-                placeholder="email" 
-                />
-            </div>
-            <div>
-                <label>password: </label>
-                <input 
-                type="text" 
-                value={password} 
-                onChange={(e) => setPassword(e.target.value)} 
-                placeholder="password" 
-                />
-            </div>
-            <button onClick={handleLogin}>Login</button>
+            <form onSubmit={handleLogin}>
+                <div>
+                    <label>email: </label>
+                    <input 
+                    type="text" 
+                    value={email} 
+                    onChange={(e) => setEmail(e.target.value)} 
+                    placeholder="email" 
+                    />
+                </div>
+                <div>
+                    <label>password: </label>
+                    <input 
+                    type="text" 
+                    value={password} 
+                    onChange={(e) => setPassword(e.target.value)} 
+                    placeholder="password" 
+                    />
+                </div>
+                <button type="submit">Login</button>
+            </form>
             <br></br>
             No account? <Link to='/register'>Register here</Link>
             <p>{status}</p>

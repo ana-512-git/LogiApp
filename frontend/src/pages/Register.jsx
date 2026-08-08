@@ -42,43 +42,45 @@ export default function Register() {
     return(
         <>
         <h1>Register</h1>
-            <div>
-                <label>first name: </label>
-                <input 
-                type="text" 
-                value={firstName} 
-                onChange={(e) => setFirstName(e.target.value)} 
-                placeholder="first name" 
-                />
-            </div>
-            <div>
-                <label>last name: </label>
-                <input 
-                type="text" 
-                value={lastName} 
-                onChange={(e) => setLastName(e.target.value)} 
-                placeholder="last name" 
-                />
-            </div>
-            <div>
-                <label>email: </label>
-                <input 
-                type="text" 
-                value={email} 
-                onChange={(e) => setEmail(e.target.value)} 
-                placeholder="email" 
-                />
-            </div>
-            <div>
-                <label>password: </label>
-                <input 
-                type="text" 
-                value={password} 
-                onChange={(e) => setPassword(e.target.value)} 
-                placeholder="password" 
-                />
-            </div>
-            <button onClick={handleSubmit}>Create account</button>
+            <form onSubmit={handleSubmit}>
+                <div>
+                    <label>first name: </label>
+                    <input 
+                    type="text" 
+                    value={firstName} 
+                    onChange={(e) => setFirstName(e.target.value)} 
+                    placeholder="first name" 
+                    />
+                </div>
+                <div>
+                    <label>last name: </label>
+                    <input 
+                    type="text" 
+                    value={lastName} 
+                    onChange={(e) => setLastName(e.target.value)} 
+                    placeholder="last name" 
+                    />
+                </div>
+                <div>
+                    <label>email: </label>
+                    <input 
+                    type="text" 
+                    value={email} 
+                    onChange={(e) => setEmail(e.target.value)} 
+                    placeholder="email" 
+                    />
+                </div>
+                <div>
+                    <label>password: </label>
+                    <input 
+                    type="text" 
+                    value={password} 
+                    onChange={(e) => setPassword(e.target.value)} 
+                    placeholder="password" 
+                    />
+                </div>
+                <button type='submit'>Create account</button>
+            </form>
             <p>{status}</p>
             <p>Already have an account?<Link to='/login'>Login</Link></p>
         </>

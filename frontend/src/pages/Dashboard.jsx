@@ -41,6 +41,7 @@ export default function Dashboard() {
         getAllItems(crtToken);
     }, [navigate]);
 
+    // TODO: also hardcoded to localhost
     const getAllItems = async (tk) => {
         const authTk = tk || extractToken();
         if (!authTk) return;
