@@ -11,6 +11,20 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
+// ITEMS QUERIES
+
+app.get('/api/objects', async (req, res) => {
+  try {
+    const result = await query('SELECT * FROM objects');
+    res.json(result.rows);
+  } catch(err) {
+    console.log("Error fetching all objects: ", err);
+    res.status(500).json({ error: 'Failed to fetch objects' });
+  }
+})
+
+// AUTHENTICATION
+
 const authenticateToken = (req, res, next) => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
