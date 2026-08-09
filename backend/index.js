@@ -68,7 +68,7 @@ app.post('/api/auth/login', async(req, res) => {
 
     const secretKey = process.env.JWT_SECRET || 'super_secret_temporary_key';
     const token = jwt.sign(
-      { userId: user.id, email: user.email, role: user.role || 'staff' },
+      { userId: user.id, first_name: user.first_name, email: user.email, role: user.role || 'staff' },
       secretKey,
       { expiresIn: '24h' }
     );

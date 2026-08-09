@@ -1,3 +1,5 @@
+import './ItemCard.css';
+
 export default function ItemCard({item}) {
     const {
         name,
@@ -12,7 +14,7 @@ export default function ItemCard({item}) {
 
     return(
         <>
-        <div style={{backgroundColor:'red'}}>
+        <div className="card">
             this is: {name}
         </div>
         </>
