@@ -105,6 +105,15 @@ export default function Dashboard() {
                             </input>
                             <div className='category-selection'>
                                 <p>Category:</p>
+                                <div className='selected-buttons'>
+                                    {selectedCategories.map((ctg) => (
+                                        <button className='category-btn selected' 
+                                            type="button"
+                                            onClick={() => handleSelectedCategory(ctg)}
+                                            key={ctg}>
+                                                {ctg}
+                                            </button>))}
+                                </div>
                                 <div className='selection-buttons'>
                                     {categories.map((ctg) => (
                                         <button className='category-btn' 
@@ -114,15 +123,6 @@ export default function Dashboard() {
                                                 {ctg}
                                         </button>))}
                                 </div>
-                            </div>
-                            <div className='selected-buttons'>
-                                    {selectedCategories.map((ctg) => (
-                                        <button className='category-btn selected' 
-                                            type="button"
-                                            onClick={() => handleSelectedCategory(ctg)}
-                                            key={ctg}>
-                                                {ctg}
-                                            </button>))}
                             </div>
                         </form>
                     </div>
