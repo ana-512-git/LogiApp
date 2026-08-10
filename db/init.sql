@@ -13,15 +13,21 @@ CREATE TABLE IF NOT EXISTS objects (
   id SERIAL PRIMARY KEY,
   name TEXT NOT NULL,
   observations TEXT,
-  location VARCHAR(10) NOT NULL CHECK (
-    location in ('EC 105', 'EC 004', 'Precis', 'P16')
-  ),
-  image_url TEXT,
   source_url TEXT,
   category TEXT NOT NULL CHECK (
     category in ('Bar', 'Bucatarie', 'Curatenie', 'Birotica', 'Papetarie', 'Boardgames', 'Diverse')
+  )
+);
+
+CREATE TABLE IF NOT EXISTS object_stock (
+  id SERIAL PRIMARY KEY,
+  object_id INT NOT NULL REFERENCES objects(id) ON DELETE CASCADE,
+  location VARCHAR(10) NOT NULL CHECK (
+    location in ('EC 105', 'EC 004', 'Precis', 'P16')
   ),
   quantity NUMERIC,
   quantity_measurement TEXT,
-  is_quantity_aproximation BOOLEAN
+  is_quantity_aproximation BOOLEAN,
+
+  UNIQUE (object_id, location)
 );
