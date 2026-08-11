@@ -12,6 +12,7 @@ export default function Dashboard() {
     const navigate = useNavigate();
     const [categories, setCategories] = useState(['Bar', 'Bucatarie', 'Curatenie', 'Birotica', 'Papetarie', 'Boardgames', 'Diverse']);
     const [selectedCategories, setSelectedCategories] = useState([]);
+    const [searchQuery, setSearchQuery] = useState('');
 
     const handleLogout = () => {
         localStorage.removeItem('token');
@@ -34,6 +35,7 @@ export default function Dashboard() {
         } else {
             setCategories(categories.filter(x => x !== ctg));
             setSelectedCategories([...selectedCategories, ctg]);
+            filteredItems.filter(x => selectedCategories.includes(x.category));
         }
     }
 
@@ -82,6 +84,13 @@ export default function Dashboard() {
         }
     }
 
+    const filteredItems = items.filter(x => {
+        const matchesName = x.name.toLowerCase().includes(searchQuery.toLocaleLowerCase());
+        const matchesCategory = selectedCategories.length === 0 || selectedCategories.includes(x.category);
+
+        return matchesName && matchesCategory;
+    });
+
     return(
         <div className='dashboard-bg'>
             <div className='hdr'>
@@ -98,10 +107,12 @@ export default function Dashboard() {
                 <div className='search-section'>
                     <div className='search-params'>
                         <h3>Search for item:</h3>
-                        <form>
+                        <form onSubmit={(e) => e.preventDefault()}>
                             <input 
                                 type='text' 
-                                placeholder='Search for object by name'>
+                                placeholder='Search for object by name'
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}>
                             </input>
                             <div className='category-selection'>
                                 <p>Category:</p>
@@ -127,14 +138,13 @@ export default function Dashboard() {
                         </form>
                     </div>
                     <div className='results'>
-                        <h3>Results:</h3>
+                        <h3>Results ({filteredItems.length}):</h3>
                         <div className='search-results'>
-                            {items.map((item) => (
+                            {filteredItems.map((item) => (
                             <ItemCard key={item.id} item={item} />
                             ))}
                         </div>
                     </div>
-                    {/* <button onClick={getAllItems}>reload items</button> */}
                 </div>
                 <div className='side-pannel'></div>
             </div>

@@ -1,30 +1,39 @@
 import './ItemCard.css';
 
-export default function ItemCard({item}) {
+export default function ItemCard({item /*stock*/}) {
     const {
         name,
         observations,
-        location,
+        source_url,
         category,
-        quantity,
-        quantity_measurement,
-        is_quantity_aproximation,
+        stocks = []
     } = item;
 
     return(
         <>
         <div className="card">
             <div className='left-info'>
-                <p className='obj-name'>{name}</p>
-                { observations ? <p className='obs'>Obs: {observations}</p> : '' }
+                <div className='text-info'>
+                    <h3 className='obj-name'>{name}</h3>
+                    { observations ? <p className='obs'>Obs: {observations}</p> : '' }
+                </div>
+                
+                { source_url ? <a href={source_url}>Source link</a> : '' }
                 <div className='category'>
                     <p className='category-p'>{category}</p>
                 </div>
             </div>
 
             <div className='right-info'>
-                { quantity_measurement ? <p> {quantity} x {quantity_measurement} : {location}</p> : <p>{quantity} : {location}</p>}
-                { is_quantity_aproximation ? <p className='alert'>Approximation: Actual quantity may differ!</p> : ''}
+                { stocks.length == 0 ? <p>!No stock available</p> : 
+                    (stocks.map((stk) => (
+                        <div key={stk.id} className='stock-entry'>
+                            { stk.quantity_measurement ? <p> {stk.quantity} x {stk.quantity_measurement} : {stk.location}</p> : <p>{stk.quantity} : {stk.location}</p>}
+                            { stk.is_quantity_aproximation ? <div className='alert'>!</div> : ''}
+                        </div>
+                    )))
+                }
+                <button className='item-page-btn'>Item page</button>
             </div>
 
         </div>

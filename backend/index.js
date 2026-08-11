@@ -15,7 +15,30 @@ app.use(express.json());
 
 app.get('/api/objects', async (req, res) => {
   try {
-    const result = await query('SELECT * FROM objects');
+    const queryText = `
+      SELECT 
+        o.id,
+        o.name,
+        o.observations,
+        o.source_url,
+        o.category,
+        COALESCE(
+          json_agg(
+            json_build_object(
+              'id', s.id,
+              'location', s.location,
+              'quantity', s.quantity,
+              'quantity_measurement', s.quantity_measurement,
+              'is_quantity_aproximation', s.is_quantity_aproximation
+            )
+          ) FILTER (WHERE s.id IS NOT NULL), '[]'
+        ) AS stocks
+      FROM objects o
+      LEFT JOIN object_stock s ON o.id = s.object_id
+      GROUP BY o.id
+      ORDER BY o.id ASC;
+    `;
+    const result = await query(queryText);
     res.json(result.rows);
   } catch(err) {
     console.log("Error fetching all objects: ", err);
