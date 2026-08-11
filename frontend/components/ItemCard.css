@@ -57,8 +57,15 @@
     /* border: 2px solid black; */
 }
 
+.actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 5px;
+}
+
 .item-page-btn {
-    width: 150px;
+    min-width: 120px;
     font-size: large;
     border-radius: 8px;
     padding: 3%;

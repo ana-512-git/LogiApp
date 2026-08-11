@@ -9,6 +9,10 @@ export default function ItemCard({item, role}) {
         stocks = []
     } = item;
 
+    const goToItemPage = () => {
+        console.log("hihi");
+    }
+
     return(
         <>
         <div className="card">
@@ -33,7 +37,15 @@ export default function ItemCard({item, role}) {
                         </div>
                     )))
                 }
-                <button className='item-page-btn'>{role === 'admin' ? 'Item page' : 'Create ticket'}</button>
+                <div className='actions'>
+                    <button className='item-page-btn'>Create ticket</button>
+                    {role === 'admin' ? 
+                        <button className='item-page-btn'
+                            onClick={goToItemPage()}
+                            >Edit
+                        </button> : ''
+                    }
+                </div>
             </div>
 
         </div>
