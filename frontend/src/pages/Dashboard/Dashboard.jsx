@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from "react-router-dom";
 import ItemCard from '../../../components/ItemCard';
 import './Dashboard.css';
+import CreateModal from '../../../components/CreateModal';
 
 export default function Dashboard() {
     const [items, setItems] = useState([]);
@@ -13,6 +14,7 @@ export default function Dashboard() {
     const [locations, setLocations] = useState(['EC 105', 'EC 004', 'Precis', 'P16']);
     const [selectedLocations, setSelectedLocations] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     const handleLogout = () => {
         localStorage.removeItem('token');
@@ -120,6 +122,7 @@ export default function Dashboard() {
     });
 
     return (
+        <>
         <div className='dashboard-bg'>
             <div className='hdr'>
                 <div className='left-hdr'>
@@ -129,7 +132,9 @@ export default function Dashboard() {
                         <p>Welcome back to your protected dash!</p>
                     }
                 </div>
-                <button className='profile-btn' onClick={handleLogout}>Logout</button>
+                <div className='right-hdr'>
+                    <button className='profile-btn' onClick={handleLogout}>Logout</button>
+                </div>
             </div>
             <div className='pannel'>
                 <div className={`search-section ${role === 'admin' ? 'with-side-panel' : 'full-width'}`}>
@@ -192,7 +197,11 @@ export default function Dashboard() {
                         </form>
                     </div>
                     <div className='results'>
-                        <h3>Results ({filteredItems.length}):</h3>
+                        <div className='results-title'>
+                            <h3>Results ({filteredItems.length}):</h3>
+                            <button className='create-item-btn'
+                                onClick={() => setIsModalOpen(true)}>+ Add item</button>
+                        </div>
                         <div className='search-results'>
                             {filteredItems.map((item) => (
                                 <ItemCard key={item.id} item={item} role={role}/>
@@ -203,6 +212,12 @@ export default function Dashboard() {
                 { role === 'admin' &&
                     <div className='side-pannel'></div>}
             </div>
+            {isModalOpen && (
+                <div className="modal-overlay" onClick={() => setIsModalOpen(false)}>
+                    <CreateModal/>
+                </div>
+                )}
         </div>
+        </>
     );
 }

@@ -82,6 +82,36 @@ html, body {
     width: 75%;
 }
 
+.results-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-right: 2%;
+}
+
+.create-item-btn {
+    background-color:#FF96B0;
+    color: #F7F3E8;
+    border-radius: 8px;
+    font-size: 20px;
+    padding: 1%;
+}
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(6px);
+    
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
 
 .category-selection {
     display: flex;
@@ -103,6 +133,10 @@ html, body {
     }
 }
 
+input {
+    background-color: #F7F3E8;
+}
+
 .selectors {
     display: flex;
     align-items: center;
@@ -110,6 +144,8 @@ html, body {
 }
 
 .category-btn {
+    background-color: #F7F3E8;
+    color: #26332E;
     border-radius: 8px;
     font-size: medium;
 }
