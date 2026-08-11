@@ -7,11 +7,13 @@ export default function Dashboard() {
     const [items, setItems] = useState([]);
     const [role, setRole] = useState(null);
     const [name, setName] = useState();
-    const [status, setStatus] = useState();
-    const [token, setToken] = useState();
     const navigate = useNavigate();
     const [categories, setCategories] = useState(['Bar', 'Bucatarie', 'Curatenie', 'Birotica', 'Papetarie', 'Boardgames', 'Diverse']);
     const [selectedCategories, setSelectedCategories] = useState([]);
+    const [locations, setLocations] = useState(['EC 105', 'EC 004', 'Precis', 'P16']);
+    const [selectedLocations, setSelectedLocations] = useState([]);
+
+
     const [searchQuery, setSearchQuery] = useState('');
 
     const handleLogout = () => {
@@ -20,7 +22,7 @@ export default function Dashboard() {
     }
 
     const extractToken = () => {
-        const tk =  localStorage.getItem('token');
+        const tk = localStorage.getItem('token');
         if (!tk) {
             navigate('/login');
             return null;
@@ -35,7 +37,16 @@ export default function Dashboard() {
         } else {
             setCategories(categories.filter(x => x !== ctg));
             setSelectedCategories([...selectedCategories, ctg]);
-            filteredItems.filter(x => selectedCategories.includes(x.category));
+        }
+    }
+
+    const handleSelectedLocation = (loc) => {
+        if (selectedLocations.includes(loc)) {
+            setLocations([...locations, loc]);
+            setSelectedLocations(selectedLocations.filter(x => x !== loc));
+        } else {
+            setLocations(locations.filter(x => x !== loc));
+            setSelectedLocations([...selectedLocations, loc]);
         }
     }
 
@@ -70,34 +81,53 @@ export default function Dashboard() {
             });
 
             const data = await response.json();
-            
+
             if (!response.ok) {
-                setStatus('error: ', data.error);
+                console.log('error: ', data.error);
                 return;
             }
 
             setItems(data);
 
-        } catch(err) {
+        } catch (err) {
             console.error('Error loading inventory:', err);
-            setStatus('Could not load inventory items.');
         }
     }
 
-    const filteredItems = items.filter(x => {
-        const matchesName = x.name.toLowerCase().includes(searchQuery.toLocaleLowerCase());
-        const matchesCategory = selectedCategories.length === 0 || selectedCategories.includes(x.category);
+    const normalizeText = (text) => {
+        if (!text) return '';
+        return text
+            .toLowerCase()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '');
+    };
 
-        return matchesName && matchesCategory;
+    const filteredItems = items.filter(x => {
+        const matchesName = x.name.toLowerCase().includes(normalizeText(searchQuery));
+        const matchesObs = x.observations && x.observations.toLowerCase().includes(normalizeText(searchQuery));
+        const matchesCategory = selectedCategories.length === 0 || selectedCategories.includes(x.category);
+        const matchesLocation = () => {
+            if (selectedLocations.length === 0) return true;
+            if (!x.stocks) return false;
+
+            for (const s of x.stocks) {
+                if (selectedLocations.includes(s.location)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        return (matchesName || matchesObs) && matchesCategory && matchesLocation();
     });
 
-    return(
+    return (
         <div className='dashboard-bg'>
             <div className='hdr'>
                 <div className='left-hdr'>
                     <h1>Hi {name},</h1>
                     {role == 'staff' && <p>Wecome back!</p>}
-                    {role == 'admin' && 
+                    {role == 'admin' &&
                         <p>Welcome back to your protected dash!</p>
                     }
                 </div>
@@ -108,40 +138,66 @@ export default function Dashboard() {
                     <div className='search-params'>
                         <h3>Search for item:</h3>
                         <form onSubmit={(e) => e.preventDefault()}>
-                            <input 
-                                type='text' 
+                            <input
+                                type='text'
                                 placeholder='Search for object by name'
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}>
                             </input>
-                            <div className='category-selection'>
-                                <p>Category:</p>
-                                <div className='selected-buttons'>
-                                    {selectedCategories.map((ctg) => (
-                                        <button className='category-btn selected' 
-                                            type="button"
-                                            onClick={() => handleSelectedCategory(ctg)}
-                                            key={ctg}>
+                            <div className='selectors'>
+                                <div className='category-selection'>
+                                    <p>Category:</p>
+                                    <div className='selected-buttons'>
+                                        {selectedCategories.map((ctg) => (
+                                            <button className='category-btn selected'
+                                                type="button"
+                                                onClick={() => handleSelectedCategory(ctg)}
+                                                key={ctg}>
                                                 {ctg}
                                             </button>))}
-                                </div>
-                                <div className='selection-buttons'>
-                                    {categories.map((ctg) => (
-                                        <button className='category-btn' 
-                                            type="button" 
-                                            onClick={() => handleSelectedCategory(ctg)} 
-                                            key={ctg}>
+                                    </div>
+                                    <div className='selection-buttons'>
+                                        {categories.map((ctg) => (
+                                            <button className='category-btn'
+                                                type="button"
+                                                onClick={() => handleSelectedCategory(ctg)}
+                                                key={ctg}>
                                                 {ctg}
-                                        </button>))}
+                                            </button>))}
+                                    </div>
+                                </div>
+
+                                <div className='category-selection'>
+                                    <p>Location:</p>
+                                    <div className='selected-buttons'>
+                                        {selectedLocations.map((loc) => (
+                                            <button className='category-btn selected'
+                                                type="button"
+                                                onClick={() => handleSelectedLocation(loc)}
+                                                key={loc}>
+                                                {loc}
+                                            </button>))}
+                                    </div>
+                                    <div className='selection-buttons'>
+                                        {locations.map((loc) => (
+                                            <button className='category-btn'
+                                                type="button"
+                                                onClick={() => handleSelectedLocation(loc)}
+                                                key={loc}>
+                                                {loc}
+                                            </button>))}
+                                    </div>
                                 </div>
                             </div>
+
+
                         </form>
                     </div>
                     <div className='results'>
                         <h3>Results ({filteredItems.length}):</h3>
                         <div className='search-results'>
                             {filteredItems.map((item) => (
-                            <ItemCard key={item.id} item={item} />
+                                <ItemCard key={item.id} item={item} />
                             ))}
                         </div>
                     </div>

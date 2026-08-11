@@ -98,6 +98,12 @@ html, body {
     }
 }
 
+.selectors {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
 .category-btn {
     border-radius: 8px;
     font-size: medium;
