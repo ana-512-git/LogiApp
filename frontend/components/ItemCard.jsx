@@ -1,6 +1,6 @@
 import './ItemCard.css';
 
-export default function ItemCard({item /*stock*/}) {
+export default function ItemCard({item, role}) {
     const {
         name,
         observations,
@@ -33,7 +33,7 @@ export default function ItemCard({item /*stock*/}) {
                         </div>
                     )))
                 }
-                <button className='item-page-btn'>Item page</button>
+                <button className='item-page-btn'>{role === 'admin' ? 'Item page' : 'Create ticket'}</button>
             </div>
 
         </div>

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from "react-router-dom";
 import ItemCard from '../../../components/ItemCard';
-import './Dashboard.css'
+import './Dashboard.css';
 
 export default function Dashboard() {
     const [items, setItems] = useState([]);
@@ -12,8 +12,6 @@ export default function Dashboard() {
     const [selectedCategories, setSelectedCategories] = useState([]);
     const [locations, setLocations] = useState(['EC 105', 'EC 004', 'Precis', 'P16']);
     const [selectedLocations, setSelectedLocations] = useState([]);
-
-
     const [searchQuery, setSearchQuery] = useState('');
 
     const handleLogout = () => {
@@ -134,7 +132,7 @@ export default function Dashboard() {
                 <button className='profile-btn' onClick={handleLogout}>Logout</button>
             </div>
             <div className='pannel'>
-                <div className='search-section'>
+                <div className={`search-section ${role === 'admin' ? 'with-side-panel' : 'full-width'}`}>
                     <div className='search-params'>
                         <h3>Search for item:</h3>
                         <form onSubmit={(e) => e.preventDefault()}>
@@ -197,12 +195,13 @@ export default function Dashboard() {
                         <h3>Results ({filteredItems.length}):</h3>
                         <div className='search-results'>
                             {filteredItems.map((item) => (
-                                <ItemCard key={item.id} item={item} />
+                                <ItemCard key={item.id} item={item} role={role}/>
                             ))}
                         </div>
                     </div>
                 </div>
-                <div className='side-pannel'></div>
+                { role === 'admin' &&
+                    <div className='side-pannel'></div>}
             </div>
         </div>
     );
