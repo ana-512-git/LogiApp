@@ -10,7 +10,7 @@ export default function ItemCard({item, role}) {
     } = item;
 
     const goToItemPage = () => {
-        console.log("hihi");
+        // console.log("hihi");
     }
 
     return(

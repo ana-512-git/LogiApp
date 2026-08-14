@@ -46,6 +46,27 @@ app.get('/api/objects', async (req, res) => {
   }
 })
 
+app.post('/api/objects/create', async (req, res) => {
+  try {
+    const { name, observations, source_url, category } = req.body;
+
+    const result = await query ('INSERT INTO objects (name, observations, source_url, category) VALUES ($1, $2, $3, $4) RETURNING id',
+      [name, observations || null, source_url || null, category]);
+
+    const objId = result.rows[0].id;
+    console.log('created object ', objId);
+
+    return res.status(201).json({
+      message: "Object creates successfully",
+      objId: objId
+    })
+  } catch (err) {
+    console.error('Database Error:', err);
+    return res.status(500).json({ error: 'Database query failed' });
+  }
+  
+})
+
 // AUTHENTICATION
 
 const authenticateToken = (req, res, next) => {

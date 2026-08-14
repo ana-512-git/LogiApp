@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from "react-router-dom";
 import ItemCard from '../../../components/ItemCard';
 import './Dashboard.css';
-import CreateModal from '../../../components/CreateModal';
+import CreateObjectWizard from '../CreateObjectWizard/CreateObjectWizard';
 
 export default function Dashboard() {
     const [items, setItems] = useState([]);
@@ -214,7 +214,7 @@ export default function Dashboard() {
             </div>
             {isModalOpen && (
                 <div className="modal-overlay" onClick={() => setIsModalOpen(false)}>
-                    <CreateModal/>
+                    <CreateObjectWizard/>
                 </div>
                 )}
         </div>
