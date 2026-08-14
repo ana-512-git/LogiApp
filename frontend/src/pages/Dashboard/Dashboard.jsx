@@ -214,7 +214,10 @@ export default function Dashboard() {
             </div>
             {isModalOpen && (
                 <div className="modal-overlay" onClick={() => setIsModalOpen(false)}>
-                    <CreateObjectWizard/>
+                    <CreateObjectWizard
+                        onClose={() => setIsModalOpen(false)}
+                        onRefresh={() => getAllItems()}
+                    />
                 </div>
                 )}
         </div>

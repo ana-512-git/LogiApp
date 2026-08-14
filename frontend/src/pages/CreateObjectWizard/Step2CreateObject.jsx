@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import './Step2CreateModal.css';
+import './CreateObject.css';
 
-export default function Step2CreateModal({ onComplete, onCancel }) {
+export default function Step2CreateObject({ onComplete, onCancel }) {
     const [quantity, setQuantity] = useState('');
     const [q_measurement, setQMeasurement] = useState('buc');
     const [location, setLocation] = useState('EC 105');
@@ -48,15 +48,11 @@ export default function Step2CreateModal({ onComplete, onCancel }) {
 
     return (
         <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <h3>Step 2/2: Create stock</h3>
-            <div>Existing stock:
-                {stock.length === 0 ? 'Nothing rn' :
-                    stock.map((stk, idx) => (
-                        <div key={idx}>{stk.quantity} x {stk.q_measurement} : {stk.location} {stk.is_approx ? '!' : ''} <button onClick={() => removeFromStock(stk)}>x</button></div>
-                    ))
-                }
+            <div className='form-title'>
+                <h3>Step 2/2: Create stock</h3>
             </div>
             <form>
+                <div className='all-fields'>
                 <div className='input-field'>
                     <label>Quantity:</label>
                     <input
@@ -91,7 +87,7 @@ export default function Step2CreateModal({ onComplete, onCancel }) {
                         <option value='P16'>P16</option>
                     </select>
                 </div>
-                <div className='input-field'>
+                <div className='input-field cbx'>
                     <input
                         type='checkbox'
                         checked={is_approx}
@@ -99,10 +95,25 @@ export default function Step2CreateModal({ onComplete, onCancel }) {
                     ></input>
                     <label>This is an approximation</label>
                 </div>
-                <button type='button' onClick={() => addToStock()}>Add entry</button>
-                <button type='button' onClick={() => handleFinalize()}>Finalize</button>
+                <div className='input-field'>
+                    <button type='button' onClick={() => addToStock()}>Add stock entry</button>
+                </div>
+                </div>
+                <div className='stock'>
+                    <p>Stock:</p>
+                    <div className='stock-entries'>
+                    {stock.length === 0 ? ' - nothing yet, please add stock info -' :
+                        stock.map((stk, idx) => (
+                            <div className='stock-entry' key={idx}>{stk.quantity} x {stk.q_measurement} : {stk.location} {stk.is_approx ? '!' : ''} <button onClick={() => removeFromStock(stk)}>x</button></div>
+                        ))
+                    }</div>
+                </div>
+            <div className='action-btns'>
+                <button type='button' className='cancel-btn' onClick={onCancel}>Cancel</button>
+                <button type='button' className='next-btn' onClick={() => handleFinalize()}>Finalize</button>
+            </div>
             </form>
-            <p>{error}</p>
+            <p className='err'>{error}</p>
         </div>
     );
 }

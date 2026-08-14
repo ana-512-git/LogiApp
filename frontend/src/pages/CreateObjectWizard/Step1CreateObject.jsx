@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import './Step1CreateObject.css';
+import './CreateObject.css';
 
 export default function Step1CreateObject({ onComplete, onCancel }) {
     const [name, setName] = useState('');
@@ -10,7 +10,7 @@ export default function Step1CreateObject({ onComplete, onCancel }) {
 
     const handleNextStep = () => {
         if (!name || !category) {
-            setMessage("Name and category are required fields");
+            setMessage("Name is a required field!");
             return;
         }
         
@@ -28,9 +28,12 @@ export default function Step1CreateObject({ onComplete, onCancel }) {
 
     return (
         <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <h3>Step 1/2: Define object</h3>
-            {message ? <p>{message}</p> : ''}
+            <div className='form-title'>
+                <h3>Step 1/2: Define object</h3>
+            </div>
+            <div className='form-fields'>
             <form onSubmit={handleNextStep}>
+                <div className='all-fields'>
                 <div className='input-field'>
                     <label>Object name:</label>
                     <input
@@ -71,9 +74,14 @@ export default function Step1CreateObject({ onComplete, onCancel }) {
                         <option value="Diverse">Diverse</option>
                     </select>
                 </div>
-                <button type='button' onClick={() => onCancel()}>Cancel</button>
-                <button type='submit' onClick={() => handleNextStep()}>Next</button>
+                </div>
+                <div className='action-btns'>
+                    <button type='button' className='cancel-btn' onClick={onCancel}>Cancel</button>
+                    <button type='submit' className='next-btn' onClick={() => handleNextStep()}>Next</button>
+                </div>
             </form>
+            </div>
+            {message ? <p className='err'>{message}</p> : ''}
         </div>
     )
 }

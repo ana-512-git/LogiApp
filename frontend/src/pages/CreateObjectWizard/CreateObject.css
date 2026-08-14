@@ -1,0 +1,104 @@
+.modal-content {
+    background-color: #F7F3E8;
+    color: #26332E;
+    padding: 24px;
+    border-radius: 16px;
+    width: 35vw;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.form-title, .form-fields {
+    width: 100%;
+    /* border: 2px solid black; */
+}
+
+.all-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.input-field {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    font-size: 20px;
+
+    input, select {
+        min-height: 40px;
+        font-size: medium;
+        border-radius: 12px;
+        background-color: #F7F3E8;
+        padding: 2%;
+    }
+
+    button {
+        font-size: large;
+        border-radius: 8px;
+        padding: 2%;
+        background-color: #1F4D3A;
+        color: #F7F3E8;
+    }
+}
+
+.stock {
+    font-size: 20px;
+
+    p {
+        font-size: 20px;
+    }
+}
+
+.stock-entry {
+    display: flex;
+    align-items: center;
+    justify-content: left;
+
+    padding: 2% 0;
+}
+
+.stock-entries {
+    border-top: 3px solid #1F4D3A;
+    border-bottom: 3px solid #1F4D3A;
+    padding: 10px;
+}
+
+.cbx {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: left;
+}
+
+.action-btns {
+    padding: 5% 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    
+    button {
+        font-size: large;
+        border-radius: 8px;
+        padding: 2%;
+    }
+
+    .next-btn {
+        background-color: #1F4D3A;
+        color:#F7F3E8;
+    }
+
+    .cancel-btn {
+        color: #1F4D3A;
+        background-color:#F7F3E8;
+    }
+}
+
+.err {
+    font-size: medium;
+    color: red;
+}

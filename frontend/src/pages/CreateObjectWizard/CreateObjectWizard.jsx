@@ -1,29 +1,41 @@
-import { use, useState } from 'react';
+import { useEffect, useState } from 'react';
 import Step1 from './Step1CreateObject';
-import Step2 from './Step2CreateModal';
+import Step2 from './Step2CreateObject';
 
-export default function CreateObjectWizard() {
-    const [step2, setStep2] = useState(false);
+export default function CreateObjectWizard({ onClose, onRefresh}) {
+    const [step, setStep] = useState(1);
     const [obj, setObj] = useState('');
     const [stock, setStock] = useState([]);
+    const [message, setMessage] = useState('');
 
     const handleNextStep = (obj) => {
         setObj(obj);
-        setStep2(true);
+        setStep(2);
     }
+
+    useEffect(() => {
+        if (step === 3) {
+            const timer = setTimeout(() => {
+                if (onClose) onClose();
+            }, 2000);
+
+            return () => clearTimeout(timer);
+        }
+    }, [step, onClose]);
 
     const handleCreateObject = async (stock) => {
-        setStock(stock);
-        createObject();
-    }
-
-    const createObject = async (e) => {
-        e.preventDefault();
-
         const token = localStorage.getItem('token');
         if (!token) {
             setMessage("Authentication token missing, please log in first");
             return;
+        }
+
+        const payload = {
+            name: obj.name,
+            observations: obj.observations || null,
+            source_url: obj.source_url || null,
+            category: obj.category,
+            stocks: stock
         }
 
         try {
@@ -33,31 +45,44 @@ export default function CreateObjectWizard() {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify(obj, stock)
+                body: JSON.stringify(payload)
             }
             )
 
             const data = await response.json();
 
             if (!response.ok) {
-                setMessage("Failed to create object");
+                console.log("Failed to create object");
+                setMessage("Object creation failed, pls try again")
                 return;
             }
+
+            setMessage("Object created successfully!");
+            if (onRefresh) onRefresh();
+            setStep(3);
         } catch (err) {
             console.log("sth went wrong");
-            setMessage("An error occured: ", err.message);
         }
     }
 
     return(
         <div>
-            {step2 ? 
-            <Step2 
-                onComplete={handleCreateObject}
-            /> : 
+            {step === 1 && 
             <Step1
                 onComplete={handleNextStep}
+                onCancel = {onClose}
             />}
+            {step === 2 && 
+            <Step2
+                onComplete={handleCreateObject}
+                onCancel={onClose}
+            />}
+
+            {step === 3 && 
+                <div className='modal-content'>
+                    <p>{message}</p>
+                </div>
+            }
         </div>
     );
 }

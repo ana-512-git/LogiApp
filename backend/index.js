@@ -48,24 +48,48 @@ app.get('/api/objects', async (req, res) => {
 
 app.post('/api/objects/create', async (req, res) => {
   try {
-    const { name, observations, source_url, category } = req.body;
+    // 1. Default stocks to [] to prevent crash if undefined
+    const { name, observations, source_url, category, stocks = [] } = req.body;
 
-    const result = await query ('INSERT INTO objects (name, observations, source_url, category) VALUES ($1, $2, $3, $4) RETURNING id',
-      [name, observations || null, source_url || null, category]);
+    const result = await query(
+      'INSERT INTO objects (name, observations, source_url, category) VALUES ($1, $2, $3, $4) RETURNING id',
+      [name, observations || null, source_url || null, category]
+    );
 
     const objId = result.rows[0].id;
-    console.log('created object ', objId);
+    console.log('created object ID:', objId);
+
+    // 2. Loop through stocks with fixed SQL parenthesis and property fallbacks
+    for (const stk of stocks) {
+      try {
+        const crt_res = await query(
+          'INSERT INTO object_stock (object_id, location, quantity, quantity_measurement, is_quantity_aproximation) VALUES ($1, $2, $3, $4, $5) RETURNING id',
+          [
+            objId,
+            stk.location,
+            stk.quantity,
+            stk.quantity_measurement || stk.q_measurement || null,
+            stk.is_quantity_aproximation ?? stk.is_approx ?? false
+          ]
+        );
+
+        console.log("added stock entry:", crt_res.rows[0]);
+      } catch (err) {
+        console.error("Error adding stock entry:", err);
+        return res.status(500).json({ error: "Something went wrong adding stock entries" });
+      }
+    }
 
     return res.status(201).json({
-      message: "Object creates successfully",
+      message: "Object created successfully",
       objId: objId
-    })
+    });
+
   } catch (err) {
     console.error('Database Error:', err);
     return res.status(500).json({ error: 'Database query failed' });
   }
-  
-})
+});
 
 // AUTHENTICATION
 
