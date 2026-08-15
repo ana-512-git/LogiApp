@@ -1,17 +1,14 @@
 import './ItemCard.css';
 
-export default function ItemCard({item, role}) {
+export default function ItemCard({item, role, onEdit}) {
     const {
+        id,
         name,
         observations,
         source_url,
         category,
         stocks = []
     } = item;
-
-    const goToItemPage = () => {
-        // console.log("hihi");
-    }
 
     return(
         <>
@@ -41,7 +38,7 @@ export default function ItemCard({item, role}) {
                     <button className='item-page-btn'>Create ticket</button>
                     {role === 'admin' ? 
                         <button className='item-page-btn'
-                            onClick={goToItemPage()}
+                            onClick={() => onEdit(item)}
                             >Edit
                         </button> : ''
                     }

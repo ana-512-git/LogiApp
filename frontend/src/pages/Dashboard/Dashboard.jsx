@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import ItemCard from '../../../components/ItemCard';
 import './Dashboard.css';
 import CreateObjectWizard from '../CreateObjectWizard/CreateObjectWizard';
+import UpdateObjectWizard from '../UpdateObjectWizard/UpdateObjectWizard';
 
 export default function Dashboard() {
     const [items, setItems] = useState([]);
@@ -14,7 +15,9 @@ export default function Dashboard() {
     const [locations, setLocations] = useState(['EC 105', 'EC 004', 'Precis', 'P16']);
     const [selectedLocations, setSelectedLocations] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+    const [editingItem, setEdititngItem] = useState(null);
+
 
     const handleLogout = () => {
         localStorage.removeItem('token');
@@ -199,12 +202,14 @@ export default function Dashboard() {
                     <div className='results'>
                         <div className='results-title'>
                             <h3>Results ({filteredItems.length}):</h3>
-                            <button className='create-item-btn'
-                                onClick={() => setIsModalOpen(true)}>+ Add item</button>
+                            { role === 'admin' &&
+                                <button className='create-item-btn'
+                                    onClick={() => setIsCreateModalOpen(true)}>+ Add item</button>
+                            }
                         </div>
                         <div className='search-results'>
                             {filteredItems.map((item) => (
-                                <ItemCard key={item.id} item={item} role={role}/>
+                                <ItemCard key={item.id} item={item} role={role} onEdit={setEdititngItem}/>
                             ))}
                         </div>
                     </div>
@@ -212,14 +217,24 @@ export default function Dashboard() {
                 { role === 'admin' &&
                     <div className='side-pannel'></div>}
             </div>
-            {isModalOpen && (
-                <div className="modal-overlay" onClick={() => setIsModalOpen(false)}>
+            {isCreateModalOpen && (
+                <div className="modal-overlay" onClick={() => setIsCreateModalOpen(false)}>
                     <CreateObjectWizard
-                        onClose={() => setIsModalOpen(false)}
+                        onClose={() => setIsCreateModalOpen(false)}
+                        onRefresh={() => getAllItems()}
+                    />
+                </div>
+            )}
+            {editingItem && (
+                    <div className="modal-overlay" onClick={() => setEdititngItem(null)}>
+                    <UpdateObjectWizard
+                        item = {editingItem}
+                        onClose={() => setEdititngItem(null)}
                         onRefresh={() => getAllItems()}
                     />
                 </div>
                 )}
+
         </div>
         </>
     );

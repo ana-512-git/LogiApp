@@ -84,7 +84,7 @@
     button {
         font-size: large;
         border-radius: 8px;
-        padding: 2%;
+        padding: 12px;
     }
 
     .next-btn {
@@ -96,6 +96,23 @@
         color: #1F4D3A;
         background-color:#F7F3E8;
     }
+}
+
+.non-delete-btns {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    min-width: 160px;
+
+    button {
+        font-size: large;
+    }
+}
+
+.delete-btn {
+    background-color: #EF4444;
 }
 
 .err {
