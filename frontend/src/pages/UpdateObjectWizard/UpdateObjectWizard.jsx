@@ -1,7 +1,7 @@
 import '../CreateObjectWizard/CreateObject.css'
 import { useState } from 'react';
 
-export default function UpdateObjectWizard({ item, onClose, onRefresh }) {
+export default function UpdateObjectWizard({ item, onClose, onRefresh, onDelete, onUpdate }) {
     const [quantity, setQuantity] = useState('');
         const [q_measurement, setQMeasurement] = useState('buc');
         const [location, setLocation] = useState('EC 105');
@@ -9,8 +9,6 @@ export default function UpdateObjectWizard({ item, onClose, onRefresh }) {
         const [stock, setStock] = useState(item.stocks || []);
         const [error, setError] = useState('');
         const [observations, setObservations] = useState(item.observations || null);
-        const [stockToRemove, setStockToRemove] = useState([]);
-        const [stockToAdd, setStockToAdd] = useState([]);
     
         const addToStock = () => {
             const stk = {quantity, q_measurement, location, is_approx};
@@ -22,7 +20,14 @@ export default function UpdateObjectWizard({ item, onClose, onRefresh }) {
     
             const existing_stk = stock.find(x => x.location === stk.location);
             if (existing_stk) {
+                const existing_measurement = existing_stk.quantity_measurement || existing_stk.q_measurement;
+                const existing_approx = existing_stk.is_quantity_aproximation ?? existing_stk.is_approx ?? false; 
+                if (stk.q_measurement !== existing_measurement) {
+                    setError('Quantity measurement must be the same at an existing location!');
+                    return;
+                }
                 stk.quantity = Number(stk.quantity) + Number(existing_stk.quantity);
+                stk.is_approx = existing_approx || stk.is_approx;
                 setStock([...stock.filter(x => x.location !== stk.location), stk]);
             } else {
                 setStock([...stock, stk]);
@@ -34,14 +39,19 @@ export default function UpdateObjectWizard({ item, onClose, onRefresh }) {
             setError('');
         }
 
-        const onCancel = () => {
-            return;
-        }
-
         const removeFromStock = (stk) => {
-            setStockToRemove([...stockToRemove, stk]);
             setStock(stock.filter(x => x.location !== stk.location));
         }
+
+        const handleFinalize = () => {
+            if (stock.length === 0) {
+                setError('Object stock cannot be empty');
+                return;
+            }
+            if (onUpdate) {
+                onUpdate(observations, stock);
+            }
+        };
     
     return(
         <div className="modal-content" onClick={(e) => e.stopPropagation()}>
@@ -56,8 +66,8 @@ export default function UpdateObjectWizard({ item, onClose, onRefresh }) {
                         type='text'
                         placeholder='e.g. lipseste o piesa'
                         value={observations}
-                        onChange={(e) => setQuantity(e.target.value)}
-                        required>
+                        onChange={(e) => setObservations(e.target.value)}
+                        >
                     </input>
                 </div>
                 <div className='input-field'>
@@ -68,7 +78,7 @@ export default function UpdateObjectWizard({ item, onClose, onRefresh }) {
                         placeholder='e.g. 7/ 1.5'
                         value={quantity}
                         onChange={(e) => setQuantity(e.target.value)}
-                        required>
+                        >
                     </input>
                 </div>
                 <div className='input-field'>
@@ -110,17 +120,19 @@ export default function UpdateObjectWizard({ item, onClose, onRefresh }) {
                     <p>Stock:</p>
                     <div className='stock-entries'>
                     {stock.length === 0 ? ' - nothing yet, please add stock info -' :
-                        stock.map((stk, idx) => (
-                            <div className='stock-entry' key={idx}>{stk.quantity} x {stk.q_measurement} : {stk.location} {stk.is_approx ? '!' : ''} <button onClick={() => removeFromStock(stk)}>x</button></div>
-                        ))
+                        stock.map((stk, idx) => {
+                            const measurement = stk.q_measurement || stk.quantity_measurement || '';
+                            const isApprox = stk.is_approx ?? stk.is_quantity_aproximation ?? false;
+                            return (<div className='stock-entry' key={idx}>{stk.quantity} x {measurement} : {stk.location} {isApprox? '!' : ''} <button type="button" onClick={() => removeFromStock(stk)}>x</button></div>);
+})
                     }</div>
                 </div>
             <div className='action-btns'>
-                <button type='button' className='delete-btn'>Delete</button>
+                <button type='button' className='delete-btn' onClick={onDelete}>Delete</button>
 
                 <div className='non-delete-btns'>
-                    <button type='button' className='cancel-btn' onClick={onCancel}>Cancel</button>
-                    <button type='button' className='next-btn' onClick={() => handleFinalize()}>Finalize</button>
+                    <button type='button' className='cancel-btn' onClick={onClose}>Cancel</button>
+                    <button type='button' className='next-btn' onClick={handleFinalize}>Finalize</button>
                 </div>
             </div>
             </form>

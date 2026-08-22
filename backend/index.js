@@ -11,6 +11,23 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
+const authenticateToken = (req, res, next) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+
+  if (!token) {
+    return res.status(401).json({ error: 'Invalid token, pls log in' });
+  }
+
+  jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+    if (err) {
+      return res.status(403).json({ error: 'Invalid or expired token.' });
+    }
+    req.user = decoded;
+    next();
+  });
+};
+
 // ITEMS QUERIES
 
 app.get('/api/objects', async (req, res) => {
@@ -91,24 +108,69 @@ app.post('/api/objects/create', async (req, res) => {
   }
 });
 
-// AUTHENTICATION
+app.delete('/api/objects/:id', async (req, res) => {
+  const { id }= req.params;
 
-const authenticateToken = (req, res, next) => {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
+  try {
+    await query ('DELETE FROM object_stock WHERE object_id = $1', [id]);
+    const result = await query ('DELETE FROM objects WHERE id = $1 RETURNING id', [id]);
 
-  if (!token) {
-    return res.status(401).json({ error: 'Invalid token, pls log in' });
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Object not found' });
+    }
+
+    return res.status(200).json({ message: 'Object deleted successfully', id});
+  } catch (err) {
+    console.log("sth went wrong at delete: ", err);
+    return res.status(500).json({ error: 'Db query failed'});
+  }
+})
+
+app.put('/api/objects/:id', async (req, res) => {
+  const { id } = req.params;
+  const { observations, stocks } = req.body;
+
+  if (!stocks || !Array.isArray(stocks) || stocks.length === 0) {
+    return res.status(400).json({ error: 'Object stock cannot be null or empty' });
   }
 
-  jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
-    if (err) {
-      return res.status(403).json({ error: 'Invalid or expired token.' });
+  try {
+    const objres = await query(
+      'UPDATE objects SET observations = $1 WHERE id = $2 RETURNING id, name, observations, category;',
+      [observations || null, id]
+    );
+
+    if (objres.rows.length === 0) {
+      return res.status(404).json({ error: 'Object not found.' });
     }
-    req.user = decoded;
-    next();
-  });
-};
+
+    await query('DELETE FROM object_stock WHERE object_id = $1', [id]);
+
+    const insertStockQuery = `
+      INSERT INTO object_stock (object_id, location, quantity, quantity_measurement, is_quantity_aproximation)
+      VALUES ($1, $2, $3, $4, $5);
+    `;
+
+    for (const stk of stocks) {
+      await query(insertStockQuery, [
+        id,
+        stk.location,
+        stk.quantity,
+        stk.quantity_measurement || stk.q_measurement || null,
+        stk.is_quantity_aproximation ?? stk.is_approx ?? false
+      ]);
+    }
+
+    return res.status(200).json({
+      message: 'Object updated successfully',
+      updatedObject: objres.rows[0]
+    });
+  } catch (err) {
+    console.error('Error updating object and stock:', err);
+    return res.status(500).json({ error: 'Database update failed.' });
+  }
+});
+// AUTHENTICATION
 
 app.post('/api/auth/login', async(req, res) => {
   const { email, password } = req.body;

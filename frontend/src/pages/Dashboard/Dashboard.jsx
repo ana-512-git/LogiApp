@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import ItemCard from '../../../components/ItemCard';
 import './Dashboard.css';
 import CreateObjectWizard from '../CreateObjectWizard/CreateObjectWizard';
-import UpdateObjectWizard from '../UpdateObjectWizard/UpdateObjectWizard';
+import UpdateDeleteObjectWizard from '../UpdateObjectWizard/UpdateDeleteObjectWizard';
 
 export default function Dashboard() {
     const [items, setItems] = useState([]);
@@ -227,7 +227,7 @@ export default function Dashboard() {
             )}
             {editingItem && (
                     <div className="modal-overlay" onClick={() => setEdititngItem(null)}>
-                    <UpdateObjectWizard
+                    <UpdateDeleteObjectWizard
                         item = {editingItem}
                         onClose={() => setEdititngItem(null)}
                         onRefresh={() => getAllItems()}
