@@ -296,9 +296,54 @@ const users_mock = [
     }
 ];
 
+const tickets_mock = [
+    {
+        creator_id: 1,
+        object_id: 1,
+        text: "Nu mai sunt servetele in EC 105, trebuie aduse din depozit."
+    },
+    {
+        creator_id: 2,
+        object_id: 2,
+        text: "Lipsesc piese de la jocul Catan dupa seara de boardgames."
+    },
+    {
+        creator_id: 3,
+        object_id: 3,
+        text: "Baxul de apa minerala s-a terminat la Bucatarie."
+    },
+    {
+        creator_id: 4,
+        object_id: 4,
+        text: "Topurile de hartie A4 pentru imprimanta din Precis sunt pe terminate."
+    },
+    {
+        creator_id: 3,
+        object_id: 1,
+        text: "Detergentul de vase aproape s-a terminat la Bar."
+    }
+];
+
+async function seed_tickets() {
+    try {
+        await query('TRUNCATE TABLE tickets RESTART IDENTITY;');
+
+        for (const tkt of tickets_mock) {
+            await query(
+                'INSERT INTO tickets (creator_id, object_id, text) VALUES ($1, $2, $3)', 
+                [tkt.creator_id, tkt.object_id, tkt.text]
+            );
+        }
+        console.log('Successfully seeded mock tickets');
+    } catch (err) {
+        console.error('Sth went wrong seeding tickets: ', err);
+        process.exit(1);
+    }
+}
+
 async function seed_users() {
     try {
-        await query('TRUNCATE TABLE users RESTART IDENTITY;');
+        await query('TRUNCATE TABLE users RESTART IDENTITY CASCADE;');
 
         for (const usr of users_mock) {
             const passHash = await bcrypt.hash(usr.password, 10);
@@ -367,6 +412,7 @@ async function seed_objects() {
 async function seed_all() {
     await seed_users();
     await seed_objects();
+    await seed_tickets();
 }
 
 seed_all();

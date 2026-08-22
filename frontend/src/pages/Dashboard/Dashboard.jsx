@@ -4,11 +4,14 @@ import ItemCard from '../../../components/ItemCard';
 import './Dashboard.css';
 import CreateObjectWizard from '../CreateObjectWizard/CreateObjectWizard';
 import UpdateDeleteObjectWizard from '../UpdateObjectWizard/UpdateDeleteObjectWizard';
+import CreateTicketWizard from '../CreateTicket/CreateTicketWizard';
+import TicketCard from '../../../components/TicketCard';
 
 export default function Dashboard() {
     const [items, setItems] = useState([]);
     const [role, setRole] = useState(null);
     const [name, setName] = useState();
+    const [id, setId] = useState();
     const navigate = useNavigate();
     const [categories, setCategories] = useState(['Bar', 'Bucatarie', 'Curatenie', 'Birotica', 'Papetarie', 'Boardgames', 'Diverse']);
     const [selectedCategories, setSelectedCategories] = useState([]);
@@ -17,6 +20,8 @@ export default function Dashboard() {
     const [searchQuery, setSearchQuery] = useState('');
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [editingItem, setEdititngItem] = useState(null);
+    const [creatingTicket, setCreatingTicket] = useState(null);
+    const [tickets, setTickets] = useState([]);
 
 
     const handleLogout = () => {
@@ -63,6 +68,7 @@ export default function Dashboard() {
 
             setRole(decodedPayload.role);
             setName(decodedPayload.first_name);
+            setId(decodedPayload.userId);
         } catch (err) {
             console.error('Invalid token format');
             localStorage.removeItem('token');
@@ -70,6 +76,7 @@ export default function Dashboard() {
         }
 
         getAllItems(crtToken);
+        getAllTickets(crtToken);
     }, [navigate]);
 
     // TODO: also hardcoded to localhost
@@ -96,6 +103,64 @@ export default function Dashboard() {
             console.error('Error loading inventory:', err);
         }
     }
+
+    const getAllTickets = async (tk) => {
+        const authTk = tk || extractToken();
+        if (!authTk) return;
+        try {
+            const response = await fetch('http://localhost:5000/api/tickets', {
+                headers: {
+                    Authorization: `Bearer ${authTk}`,
+                },
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                console.log('error: ', data.error);
+                return;
+            }
+
+            setTickets(data);
+
+        } catch (err) {
+            console.error('Error loading inventory:', err);
+        }
+    }
+
+
+    const createTicket = async (ticketText) => {
+        const token = extractToken();
+        if (!token || !creatingTicket) return;
+
+        try {
+            const response = await fetch('http://localhost:5000/api/tickets/create', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    object_id: creatingTicket.id,
+                    text: ticketText,
+                    user_id : id
+                })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                console.error('Ticket creation error:', data.error);
+                return;
+            }
+
+            setCreatingTicket(null);
+            getAllTickets(token);
+
+        } catch (err) {
+            console.error('Network error creating ticket:', err);
+        }
+    };
 
     const normalizeText = (text) => {
         if (!text) return '';
@@ -209,13 +274,22 @@ export default function Dashboard() {
                         </div>
                         <div className='search-results'>
                             {filteredItems.map((item) => (
-                                <ItemCard key={item.id} item={item} role={role} onEdit={setEdititngItem}/>
+                                <ItemCard key={item.id} item={item} role={role} onEdit={setEdititngItem} onCreateTicket={setCreatingTicket}/>
                             ))}
                         </div>
                     </div>
                 </div>
                 { role === 'admin' &&
-                    <div className='side-pannel'></div>}
+                    <div className='side-pannel'>
+                        <div className='title'>
+                            <h3>Tickets:</h3>
+                        </div>
+                        <div className='all-tickets'>
+                            {tickets.map((ticket) => (
+                                <TicketCard key={ticket.id} ticket={ticket}/>
+                            ))}
+                        </div>
+                    </div>}
             </div>
             {isCreateModalOpen && (
                 <div className="modal-overlay" onClick={() => setIsCreateModalOpen(false)}>
@@ -231,6 +305,15 @@ export default function Dashboard() {
                         item = {editingItem}
                         onClose={() => setEdititngItem(null)}
                         onRefresh={() => getAllItems()}
+                    />
+                </div>
+                )}
+            {creatingTicket && (
+                    <div className="modal-overlay" onClick={() => setCreatingTicket(false)}>
+                    <CreateTicketWizard
+                        item={creatingTicket}
+                        onClose={() => setCreatingTicket(false)}
+                        onCreateTicket={createTicket}
                     />
                 </div>
                 )}

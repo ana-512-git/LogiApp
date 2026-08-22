@@ -28,6 +28,59 @@ const authenticateToken = (req, res, next) => {
   });
 };
 
+// TICKETS QUERIES
+app.get('/api/tickets', async (req, res) => {
+  try {
+    const queryText = `
+      SELECT 
+        t.id,
+        t.text,
+        t.timestamp,
+        t.creator_id,
+        u.first_name AS creator_first_name,
+        u.last_name AS creator_last_name,
+        t.object_id,
+        o.name AS object_name
+      FROM tickets t
+      JOIN users u ON t.creator_id = u.id
+      JOIN objects o ON t.object_id = o.id
+      ORDER BY t.timestamp DESC;
+    `;
+
+    const result = await query(queryText);
+    return res.status(200).json(result.rows);
+  } catch (err) {
+    console.error('Error fetching tickets:', err);
+    return res.status(500).json({ error: 'Failed to fetch tickets' });
+  }
+});
+
+app.post('/api/tickets/create', async (req, res) => {
+  const { object_id, text, user_id } = req.body;
+  const creator_id = user_id;
+
+  if (!object_id || !text) {
+    return res.status(400).json({ error: 'Object ID and ticket text are required' });
+  }
+
+  try {
+    const insertQuery = `
+      INSERT INTO tickets (creator_id, object_id, text)
+      VALUES ($1, $2, $3)
+      RETURNING id, creator_id, object_id, text, timestamp;
+    `;
+    const result = await query(insertQuery, [creator_id, object_id, text]);
+
+    return res.status(201).json({
+      message: 'Ticket created successfully',
+      ticket: result.rows[0]
+    });
+  } catch (err) {
+    console.error('Error creating ticket:', err);
+    return res.status(500).json({ error: 'Database query failed' });
+  }
+})
+
 // ITEMS QUERIES
 
 app.get('/api/objects', async (req, res) => {

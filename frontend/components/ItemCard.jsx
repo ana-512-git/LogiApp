@@ -1,6 +1,6 @@
 import './ItemCard.css';
 
-export default function ItemCard({item, role, onEdit}) {
+export default function ItemCard({item, role, onEdit, onCreateTicket}) {
     const {
         id,
         name,
@@ -35,7 +35,7 @@ export default function ItemCard({item, role, onEdit}) {
                     )))
                 }
                 <div className='actions'>
-                    <button className='item-page-btn'>Create ticket</button>
+                    <button className='item-page-btn' onClick={() => onCreateTicket(item)}>Create ticket</button>
                     {role === 'admin' ? 
                         <button className='item-page-btn'
                             onClick={() => onEdit(item)}

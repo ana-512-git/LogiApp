@@ -31,3 +31,11 @@ CREATE TABLE IF NOT EXISTS object_stock (
 
   UNIQUE (object_id, location)
 );
+
+CREATE TABLE IF NOT EXISTS tickets (
+  id SERIAL PRIMARY KEY,
+  creator_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  object_id INT NOT NULL REFERENCES objects(id) ON DELETE CASCADE,
+  text TEXT,
+  timestamp TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);

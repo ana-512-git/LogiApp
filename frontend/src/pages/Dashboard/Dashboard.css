@@ -48,7 +48,36 @@ html, body {
 .side-pannel {
     height: 100%;
     width: 25%;
-    background-color: grey;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 10px;
+    min-height: 0;
+
+    .title {
+        width: 100%;
+        font-size: 30px;
+        display: flex;
+        align-items: center;
+        color: #F7F3E8;
+        flex-shrink: 0;
+    }
+
+    .all-tickets {
+        width: 100%;
+        flex: 1;
+        min-height: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+        overflow-y: auto;
+        padding-right: 4px;
+
+        > * {
+            flex-shrink: 0;
+        }
+    }
 }
 
 .search-section {
@@ -78,7 +107,7 @@ html, body {
     }
 }
 
-.search-section.with-side-pannel {
+.search-section.with-side-panel, .search-section.with-side-pannel {
     width: 75%;
 }
 
@@ -91,7 +120,7 @@ html, body {
 
 .create-item-btn {
     background-color:#FF96B0;
-    color: #F7F3E8;
+    color: #26332E;
     border-radius: 8px;
     font-size: 20px;
     padding: 1%;
