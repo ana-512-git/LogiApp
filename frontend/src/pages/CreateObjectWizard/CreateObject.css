@@ -98,6 +98,20 @@
     }
 }
 
+.delete-modal {
+    width: 80%;
+}
+
+.check-text {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    p {
+        text-align: center;
+    }
+}
+
 .non-delete-btns {
     display: flex;
     flex-direction: row;

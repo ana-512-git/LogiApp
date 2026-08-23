@@ -95,8 +95,10 @@ export default function UpdateDeleteObjectWizard({item, onClose, onRefresh}) {
 
             {step === 'check' && 
                 <div className='modal-content'>
-                        <p>Are you sure you want to delete {item.name}?</p>
-                        <div className='action-btns'>
+                        <div className="check-text">
+                            <p>Are you sure you want to delete {item.name}?</p>
+                        </div>
+                        <div className='action-btns delete-modal'>
                             <button onClick={() => setStep('edit')}>Cancel</button>
                             <button className='next-btn' onClick={() => handleDeleteObject()}>Delete</button>
                         </div>
