@@ -30,7 +30,7 @@ export default function ItemCard({item, role, onEdit, onCreateTicket}) {
                     (stocks.map((stk) => (
                         <div key={stk.id} className='stock-entry'>
                             { stk.quantity_measurement ? <p> {stk.quantity} x {stk.quantity_measurement} : {stk.location}</p> : <p>{stk.quantity} : {stk.location}</p>}
-                            { stk.is_quantity_aproximation ? <div className='alert'>!</div> : ''}
+                            { stk.is_quantity_aproximation ? <div className='alert' title='This is an approximation, actual quantity may differ!'>!</div> : ''}
                         </div>
                     )))
                 }
