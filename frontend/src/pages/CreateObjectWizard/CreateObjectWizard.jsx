@@ -5,7 +5,6 @@ import Step2 from './Step2CreateObject';
 export default function CreateObjectWizard({ onClose, onRefresh}) {
     const [step, setStep] = useState(1);
     const [obj, setObj] = useState('');
-    const [stock, setStock] = useState([]);
     const [message, setMessage] = useState('');
 
     const handleNextStep = (obj) => {
@@ -46,10 +45,7 @@ export default function CreateObjectWizard({ onClose, onRefresh}) {
                     'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify(payload)
-            }
-            )
-
-            const data = await response.json();
+            });
 
             if (!response.ok) {
                 console.log("Failed to create object");

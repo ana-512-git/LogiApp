@@ -25,40 +25,6 @@ export default function Dashboard() {
     const [tickets, setTickets] = useState([]);
 
 
-    const handleLogout = () => {
-        localStorage.removeItem('token');
-        navigate('/login');
-    }
-
-    const extractToken = () => {
-        const tk = localStorage.getItem('token');
-        if (!tk) {
-            navigate('/login');
-            return null;
-        }
-        return tk;
-    }
-
-    const handleSelectedCategory = (ctg) => {
-        if (selectedCategories.includes(ctg)) {
-            setCategories([...categories, ctg]);
-            setSelectedCategories(selectedCategories.filter(x => x !== ctg));
-        } else {
-            setCategories(categories.filter(x => x !== ctg));
-            setSelectedCategories([...selectedCategories, ctg]);
-        }
-    }
-
-    const handleSelectedLocation = (loc) => {
-        if (selectedLocations.includes(loc)) {
-            setLocations([...locations, loc]);
-            setSelectedLocations(selectedLocations.filter(x => x !== loc));
-        } else {
-            setLocations(locations.filter(x => x !== loc));
-            setSelectedLocations([...selectedLocations, loc]);
-        }
-    }
-
     useEffect(() => {
         const crtToken = extractToken();
         if (!crtToken) return;
@@ -80,7 +46,71 @@ export default function Dashboard() {
         getAllTickets();
     }, [navigate]);
 
-    // TODO: also hardcoded to localhost
+    // LOGIN/LOGOUT
+    const handleLogout = () => {
+        localStorage.removeItem('token');
+        navigate('/login');
+    }
+
+    const extractToken = () => {
+        const tk = localStorage.getItem('token');
+        if (!tk) {
+            navigate('/login');
+            return null;
+        }
+        return tk;
+    }
+
+    // SEARCH FILTERING
+    const handleSelectedCategory = (ctg) => {
+        if (selectedCategories.includes(ctg)) {
+            setCategories([...categories, ctg]);
+            setSelectedCategories(selectedCategories.filter(x => x !== ctg));
+        } else {
+            setCategories(categories.filter(x => x !== ctg));
+            setSelectedCategories([...selectedCategories, ctg]);
+        }
+    }
+
+    const handleSelectedLocation = (loc) => {
+        if (selectedLocations.includes(loc)) {
+            setLocations([...locations, loc]);
+            setSelectedLocations(selectedLocations.filter(x => x !== loc));
+        } else {
+            setLocations(locations.filter(x => x !== loc));
+            setSelectedLocations([...selectedLocations, loc]);
+        }
+    }
+
+    const normalizeText = (text) => {
+        if (!text) return '';
+        return text
+            .toLowerCase()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '');
+    };
+
+    const filteredItems = items.filter(x => {
+        const matchesName = x.name.toLowerCase().includes(normalizeText(searchQuery));
+        const matchesObs = x.observations && x.observations.toLowerCase().includes(normalizeText(searchQuery));
+        const matchesCategory = selectedCategories.length === 0 || selectedCategories.includes(x.category);
+        const matchesLocation = () => {
+            if (selectedLocations.length === 0) return true;
+            if (!x.stocks) return false;
+
+            for (const s of x.stocks) {
+                if (selectedLocations.includes(s.location)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        return (matchesName || matchesObs) && matchesCategory && matchesLocation();
+    });
+
+    // REQUESTS
+    // TODO: all hardcoded to localhost
     const getAllItems = async () => {
         const authTk = extractToken();
         if (!authTk) return;
@@ -99,7 +129,6 @@ export default function Dashboard() {
             }
 
             setItems(data);
-
         } catch (err) {
             console.error('Error loading inventory:', err);
         }
@@ -128,7 +157,6 @@ export default function Dashboard() {
             console.error('Error loading inventory:', err);
         }
     }
-
 
     const createTicket = async (ticketText) => {
         const token = extractToken();
@@ -162,33 +190,6 @@ export default function Dashboard() {
             return false;
         }
     };
-
-    const normalizeText = (text) => {
-        if (!text) return '';
-        return text
-            .toLowerCase()
-            .normalize('NFD')
-            .replace(/[\u0300-\u036f]/g, '');
-    };
-
-    const filteredItems = items.filter(x => {
-        const matchesName = x.name.toLowerCase().includes(normalizeText(searchQuery));
-        const matchesObs = x.observations && x.observations.toLowerCase().includes(normalizeText(searchQuery));
-        const matchesCategory = selectedCategories.length === 0 || selectedCategories.includes(x.category);
-        const matchesLocation = () => {
-            if (selectedLocations.length === 0) return true;
-            if (!x.stocks) return false;
-
-            for (const s of x.stocks) {
-                if (selectedLocations.includes(s.location)) {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        return (matchesName || matchesObs) && matchesCategory && matchesLocation();
-    });
 
     const handleCloseTicket = async (ticketId) => {
         const token = extractToken();
