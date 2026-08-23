@@ -75,13 +75,13 @@ export default function Dashboard() {
             navigate('/login');
         }
 
-        getAllItems(crtToken);
-        getAllTickets(crtToken);
+        getAllItems();
+        getAllTickets();
     }, [navigate]);
 
     // TODO: also hardcoded to localhost
-    const getAllItems = async (tk) => {
-        const authTk = tk || extractToken();
+    const getAllItems = async () => {
+        const authTk = extractToken();
         if (!authTk) return;
         try {
             const response = await fetch('http://localhost:5000/api/objects', {
@@ -104,8 +104,8 @@ export default function Dashboard() {
         }
     }
 
-    const getAllTickets = async (tk) => {
-        const authTk = tk || extractToken();
+    const getAllTickets = async () => {
+        const authTk = extractToken();
         if (!authTk) return;
         try {
             const response = await fetch('http://localhost:5000/api/tickets', {
@@ -155,7 +155,7 @@ export default function Dashboard() {
             }
 
             setCreatingTicket(null);
-            getAllTickets(token);
+            getAllTickets();
 
         } catch (err) {
             console.error('Network error creating ticket:', err);
@@ -188,6 +188,31 @@ export default function Dashboard() {
 
         return (matchesName || matchesObs) && matchesCategory && matchesLocation();
     });
+
+    const handleCloseTicket = async (ticketId) => {
+        const token = extractToken();
+        if (role !== 'admin') {
+            console.log('Permission denied, privileged operation');
+            return;
+        }
+        try {
+            const result = await fetch (`http://localhost:5000/api/tickets/${ticketId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (!result.ok) {
+                console.log('sth went wrong deleting ticket');
+                return;
+            }
+
+            getAllTickets();
+        } catch (err) {
+            console.log('an err occured: ', err);
+        }
+    }
 
     return (
         <>
@@ -286,7 +311,7 @@ export default function Dashboard() {
                         </div>
                         <div className='all-tickets'>
                             {tickets.map((ticket) => (
-                                <TicketCard key={ticket.id} ticket={ticket}/>
+                                <TicketCard key={ticket.id} ticket={ticket} onMarkClosed={() => handleCloseTicket(ticket.id)}/>
                             ))}
                         </div>
                     </div>}

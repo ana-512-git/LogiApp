@@ -1,6 +1,6 @@
 import './TicketCard.css';
 
-export default function TicketCard({ticket}) {
+export default function TicketCard({ticket, onMarkClosed}) {
     const creatorFullName = `${ticket.creator_first_name || ''} ${ticket.creator_last_name || ''}`.trim() || 'Unknown User';
     const formatTicketDate = (dateString) => {
         if (!dateString) return '';
@@ -30,7 +30,7 @@ export default function TicketCard({ticket}) {
             </div>
             <p>{ticket.text}</p>
             <div className='mark-done-div'>
-                <button className='mark-done-btn'>Mark done</button>
+                <button className='mark-done-btn' onClick={onMarkClosed}>Mark done</button>
             </div>
         </div>
     )
