@@ -28,7 +28,9 @@ export default function TicketCard({ticket, onMarkClosed}) {
                     <p>{creatorFullName}</p>
                 </div>
             </div>
-            <p>{ticket.text}</p>
+            <div className='ticket-text'>
+                <p>{ticket.text}</p>
+            </div>
             <div className='mark-done-div'>
                 <button className='mark-done-btn' onClick={onMarkClosed}>Mark done</button>
             </div>

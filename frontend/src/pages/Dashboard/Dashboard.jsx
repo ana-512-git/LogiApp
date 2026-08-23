@@ -6,6 +6,7 @@ import CreateObjectWizard from '../CreateObjectWizard/CreateObjectWizard';
 import UpdateDeleteObjectWizard from '../UpdateObjectWizard/UpdateDeleteObjectWizard';
 import CreateTicketWizard from '../CreateTicket/CreateTicketWizard';
 import TicketCard from '../../../components/TicketCard';
+import TicketCreator from '../CreateTicket/TicketCreator';
 
 export default function Dashboard() {
     const [items, setItems] = useState([]);
@@ -154,11 +155,11 @@ export default function Dashboard() {
                 return;
             }
 
-            setCreatingTicket(null);
             getAllTickets();
-
+            return true;
         } catch (err) {
             console.error('Network error creating ticket:', err);
+            return false;
         }
     };
 
@@ -335,7 +336,7 @@ export default function Dashboard() {
                 )}
             {creatingTicket && (
                     <div className="modal-overlay" onClick={() => setCreatingTicket(false)}>
-                    <CreateTicketWizard
+                    <TicketCreator
                         item={creatingTicket}
                         onClose={() => setCreatingTicket(false)}
                         onCreateTicket={createTicket}

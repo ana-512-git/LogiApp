@@ -3,16 +3,12 @@ import '../CreateObjectWizard/CreateObject.css';
 
 export default function CreateTicketWizard({ item, onClose, onCreateTicket }) {
     const [text, setText] = useState('');
-    const [error, setError] = useState('');
 
-    const handleSubmit = (e) => {
+    const handleCreateTicket = (e) => {
         e.preventDefault();
-        if (!text.trim()) {
-            setError('Please describe the issue');
-            return;
+        if (onCreateTicket) {
+            onCreateTicket(text);
         }
-        setError('');
-        onCreateTicket(text.trim());
     };
 
     return (
@@ -21,7 +17,7 @@ export default function CreateTicketWizard({ item, onClose, onCreateTicket }) {
                 <h3>Create new ticket for {item.name}</h3>
             </div>
             <div className='form-fields'>
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleCreateTicket}>
                 <div className='all-fields'>
                 <div className='input-field'>
                     <label>Ticket text:</label>
@@ -34,7 +30,6 @@ export default function CreateTicketWizard({ item, onClose, onCreateTicket }) {
                     </input>
                 </div>
                 </div>
-                {error && <p className='err'>{error}</p>}
                 <div className='action-btns'>
                     <button type='button' className='cancel-btn' onClick={onClose}>Cancel</button>
                     <button type='submit' className='next-btn'>Create</button>
