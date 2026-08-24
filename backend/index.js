@@ -4,12 +4,29 @@ import cors from 'cors';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { query } from './db.js';
+import http from 'http';
+import { Server } from 'socket.io';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
 app.use(cors());
 app.use(express.json());
+
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST", "PUT", "DELETE"]
+  }
+});
+
+io.on('connection', (socket) => {
+  console.log('Client connected to socket:', socket.id);
+  socket.on('disconnect', () => {
+    console.log('Client disconnected:', socket.id);
+  });
+});
 
 const authenticateToken = (req, res, next) => {
   const authHeader = req.headers['authorization'];
@@ -71,6 +88,8 @@ app.post('/api/tickets/create', async (req, res) => {
     `;
     const result = await query(insertQuery, [creator_id, object_id, text]);
 
+    io.emit('ticket_created', result.rows[0]);
+
     return res.status(201).json({
       message: 'Ticket created successfully',
       ticket: result.rows[0]
@@ -90,6 +109,7 @@ app.delete('/api/tickets/:id', async (req, res) => {
       return res.status(404).json({ error: 'object doesnt exist'});
     }
 
+    io.emit('ticket_deleted', { id: Number(id) });
     return res.status(200).json({ message: 'Object deleted successfully'});
   } catch (err) {
     console.log("sth went wrong at delete: ", err);
@@ -166,6 +186,7 @@ app.post('/api/objects/create', async (req, res) => {
       }
     }
 
+    io.emit('object_created', { id: objId });
     return res.status(201).json({
       message: "Object created successfully",
       objId: objId
@@ -188,6 +209,7 @@ app.delete('/api/objects/:id', async (req, res) => {
       return res.status(404).json({ error: 'Object not found' });
     }
 
+    io.emit('object_deleted', { id: Number(id) });
     return res.status(200).json({ message: 'Object deleted successfully', id});
   } catch (err) {
     console.log("sth went wrong at delete: ", err);
@@ -230,6 +252,7 @@ app.put('/api/objects/:id', async (req, res) => {
       ]);
     }
 
+    io.emit('object_updated', { id: Number(id) });
     return res.status(200).json({
       message: 'Object updated successfully',
       updatedObject: objres.rows[0]
@@ -239,6 +262,7 @@ app.put('/api/objects/:id', async (req, res) => {
     return res.status(500).json({ error: 'Database update failed.' });
   }
 });
+
 // AUTHENTICATION
 
 app.post('/api/auth/login', async(req, res) => {
@@ -347,6 +371,6 @@ app.post('/api/auth/register', async(req, res) => {
   }
 })
 
-app.listen(PORT, () => {
-  console.log(`Express server running on port ${PORT}`);
+server.listen(PORT, () => {
+  console.log(`Express & sockets server running on port ${PORT}`);
 });

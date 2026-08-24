@@ -7,6 +7,7 @@ import UpdateDeleteObjectWizard from '../UpdateObjectWizard/UpdateDeleteObjectWi
 import CreateTicketWizard from '../CreateTicket/CreateTicketWizard';
 import TicketCard from '../../../components/TicketCard';
 import TicketCreator from '../CreateTicket/TicketCreator';
+import { io } from "socket.io-client";
 
 export default function Dashboard() {
     const [items, setItems] = useState([]);
@@ -44,6 +45,33 @@ export default function Dashboard() {
 
         getAllItems();
         getAllTickets();
+
+        const socket = io('http://localhost:5000');
+
+        socket.on('ticket_created', () => {
+            getAllTickets();
+        });
+
+        socket.on('ticket_deleted', () => {
+            getAllTickets();
+        });
+
+        socket.on('object_created', () => {
+            getAllItems();
+        });
+
+        socket.on('object_updated', () => {
+            getAllItems();
+        });
+
+        socket.on('object_deleted', () => {
+            getAllItems();
+        });
+
+        // Cleanup connection when unmounting
+        return () => {
+            socket.disconnect();
+        };
     }, [navigate]);
 
     // LOGIN/LOGOUT
