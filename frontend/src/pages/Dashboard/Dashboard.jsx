@@ -4,7 +4,6 @@ import ItemCard from '../../../components/ItemCard';
 import './Dashboard.css';
 import CreateObjectWizard from '../CreateObjectWizard/CreateObjectWizard';
 import UpdateDeleteObjectWizard from '../UpdateObjectWizard/UpdateDeleteObjectWizard';
-import CreateTicketWizard from '../CreateTicket/CreateTicketWizard';
 import TicketCard from '../../../components/TicketCard';
 import TicketCreator from '../CreateTicket/TicketCreator';
 import { io } from "socket.io-client";
@@ -68,7 +67,6 @@ export default function Dashboard() {
             getAllItems();
         });
 
-        // Cleanup connection when unmounting
         return () => {
             socket.disconnect();
         };
